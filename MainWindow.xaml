@@ -1,0 +1,165 @@
+﻿<Window x:Class="WarpExplorer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WarpExplorer"
+        mc:Ignorable="d"
+        Title="WarpExplorer" Height="600" Width="900"
+        WindowStartupLocation="CenterScreen"
+        Background="#1E1E1E" Foreground="White"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <!-- Button Style -->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="0,0,5,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#505050"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- List Item Style (REMOVED ContextMenu from here to prevent errors) -->
+        <Style TargetType="ListViewItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="#DDDDDD"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                Background="{TemplateBinding Background}" 
+                                Padding="{TemplateBinding Padding}" 
+                                SnapsToDevicePixels="true"
+                                CornerRadius="2" Margin="1">
+                            <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="Bd" Property="Background" Value="#333333"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="Bd" Property="Background" Value="#4C4C4C"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <!-- Header -->
+            <RowDefinition Height="*"/>
+            <!-- Content -->
+            <RowDefinition Height="30"/>
+            <!-- Status Bar -->
+        </Grid.RowDefinitions>
+
+        <!-- Top Toolbar -->
+        <Grid Grid.Row="0" Background="#252526">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                <TextBlock Text="WARP" FontWeight="Bold" FontSize="18" Foreground="#007ACC" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <Button x:Name="BtnBack" Content="Back"/>
+                <Button x:Name="BtnUp" Content="Up"/>
+            </StackPanel>
+
+            <!-- Path Bar (No Events here, handled in C#) -->
+            <TextBox x:Name="TxtPath" Grid.Column="1" VerticalAlignment="Center" Height="30" 
+                     VerticalContentAlignment="Center" Background="#1E1E1E" Foreground="White" 
+                     BorderThickness="1" BorderBrush="#333333" Padding="5,0"/>
+
+            <Button x:Name="BtnRefresh" Grid.Column="2" Content="Refresh" Margin="10,0"/>
+        </Grid>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <!-- Sidebar -->
+                <ColumnDefinition Width="*"/>
+                <!-- File List -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar: Drives -->
+            <Border Grid.Column="0" Background="#252526" BorderThickness="0,0,1,0" BorderBrush="#333333">
+                <DockPanel>
+                    <TextBlock Text="DRIVES" DockPanel.Dock="Top" Margin="10,15,0,10" Foreground="#888888" FontWeight="SemiBold"/>
+                    <ListBox x:Name="ListDrives" Background="Transparent" BorderThickness="0" 
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <TextBlock Text="💾" Margin="0,0,10,0" Foreground="#007ACC"/>
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding VolumeLabel}" Margin="5,0,0,0" Foreground="#888888" FontStyle="Italic"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- File List Container -->
+            <Grid Grid.Column="1" x:Name="FileListContainer" Background="Transparent">
+
+                <ListView x:Name="ListFiles" Background="Transparent" BorderThickness="0" 
+                          Margin="10" SelectionMode="Extended">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name" Width="300">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Icon}" Margin="0,0,10,0" Foreground="{Binding IconColor}"/>
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Type" Width="100" DisplayMemberBinding="{Binding Type}"/>
+                            <GridViewColumn Header="Size" Width="100" DisplayMemberBinding="{Binding SizeDisplay}"/>
+                            <GridViewColumn Header="Date Modified" Width="150" DisplayMemberBinding="{Binding DateModified}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+                <!-- Selection Rectangle Canvas -->
+                <Canvas x:Name="SelectionCanvas" Visibility="Collapsed" IsHitTestVisible="False">
+                    <Rectangle x:Name="SelectionBox" Stroke="#007ACC" StrokeThickness="1" Fill="#33007ACC"/>
+                </Canvas>
+            </Grid>
+        </Grid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="#007ACC" Padding="10,0">
+            <TextBlock x:Name="TxtStatus" Text="Ready" VerticalAlignment="Center" Foreground="White" FontSize="12"/>
+        </Border>
+    </Grid>
+</Window>
